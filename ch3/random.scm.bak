@@ -1,0 +1,66 @@
+;; 赋值 & 随机数生成器
+
+;; 蒙特卡洛模拟, 使用随机数生成器(赋值)
+(define estimate-pi.v1
+  (lambda (trials)
+    (sqrt (/ 6 (monte-carlo trials cesaro-test)))))
+
+(define cesaro-test
+  (lambda ()
+    (one? (gcd (rand) (rand)))))
+
+(define monte-carlo
+  (lambda (trials experiment)
+    (define iter
+      (lambda (trials-remaining trials-passed)
+        (cond [(zero? trials-remaining)
+               (/ trials-passed trials)]
+              [(experiment)
+               (iter (sub1 trials-remaining) (add1 trials-passed))]
+              [else
+               (iter (sub1 trials-remaining) trials-passed)])))
+    (iter trials 0)))
+
+;; 蒙特卡洛模拟, 使用迭代
+(define estimate-pi.v2
+  (lambda (trials)
+    (sqrt (/ 6 random-gcd-test trials random-init))))
+
+(define random-gcd-test
+  (lambda (trials initial-x)
+    (define iter
+      (lambda (trials-remaining trials-passed x)
+        (let ((x1 (random-update x)))
+          (let ((x2 (randm-update x1)))
+            (cond [(zero? trials-remaining)
+                   (/ trials-passed trials)]
+                  [(one? (gcd x1 x2))
+                   (iter (sub1 trials-remaining)
+                         (add1 trials-passed)
+                         x2)]
+                  [else
+                   (iter (sub1 trials-remaining)
+                         trials-passed
+                         x2)])))))
+    (iter trials 0 initial-x)))
+
+(define one? (lambda (x) (= x 1)))
+(define zero? (lambda (x) (= x 0)))
+
+(define sub1 (lambda (x) (- x 1)))
+(define add1 (lambda (x) (+ x 1)))
+
+(define random-init 0)
+
+(define random
+  (let ((x random-init))
+    (lambda ()
+      (set! x (random-update x))
+      x)))
+
+(define random-update
+  (lambda (x)
+    (let ((a 6364136223846793005)
+          (c 1442695040888963407)
+          (m (expt 2 64)))
+      (remainder (+ (* a x) c) m))))
