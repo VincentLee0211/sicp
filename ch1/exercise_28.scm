@@ -20,7 +20,7 @@ expmod 中的平方步骤时, 我们需要查看是否遇到了"1取模 n 的非
   (lambda (n)
     (define try-it
       (lambda (t)
-	(= t (expmod t (- n 1) n))))
+	(= 1 (expmod t (- n 1) n))))
     (try-it (+ 1 (random (- n 1))))))
 
 (define expmod
